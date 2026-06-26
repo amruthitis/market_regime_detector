@@ -6,7 +6,7 @@ import redis
 def get_by_date(date: date):
     
     r = redis.Redis(host="localhost", port=6379, db=0)
-    cache_key = f"{date}_market_data"
+    cache_key = f"{date.isoformat()}_market_data"
     cached_data = r.get_cache(cache_key)
 
     if cached_data:
@@ -32,7 +32,9 @@ def get_by_date(date: date):
     filtered_data = df[df["Date"] == date]
 
     r.setex(cache_key, timedelta(hours=24), filtered_data.to_json())
-    return filtered_data
+    
+    return filtered_data.to_json()
+
 
 
 

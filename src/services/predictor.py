@@ -10,8 +10,12 @@ def predict(request: PredictionRequest):
         raw_data = market_service.get_latest()
     else:
         raw_data = csv_service.get_by_date(request.date)
+
+
+
     
     
+
 
     
 

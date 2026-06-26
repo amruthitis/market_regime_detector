@@ -37,7 +37,7 @@ def get_latest():
     filtered_data = df[df["Date"] == date]
     r.setex(cache_key, timedelta(hours=24), filtered_data.to_json())
 
-    return filtered_data
+    return filtered_data.to_json()
     
 
 
