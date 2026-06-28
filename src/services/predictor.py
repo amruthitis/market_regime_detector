@@ -1,10 +1,10 @@
 import joblib, torch
 import numpy as np
 from datetime import date
-import csv_service, market_service, exception_service
-from schemas.features import PredictionRequest, PredictionFeatures
-from model_loader import ModelLoader
-from schemas.response import PredictionResponse
+from src.services import csv_service, market_service, exception_service
+from src.schemas.features import PredictionRequest, PredictionFeatures
+from src.services.model_loader import ModelLoader
+from src.schemas.response import PredictionResponse
 
 model = ModelLoader()
 
@@ -43,11 +43,15 @@ def predict(request: PredictionRequest):
 
     with torch.no_grad():
         latent = encoder(torch.tensor(X, dtype=torch.float32))
-        prediction = kmeans.predict(latent.numpy())[0]
-        prediction = PredictionResponse(**prediction)
+        prediction = int(kmeans.predict(latent.numpy())[0])
+        
+    regime_classification = {0:"Bullish", 1:"Crisis", 2:"Bearish", 3:"Sideways", -1:"Unclassified"}
+    response = PredictionResponse(
+        date = request.date if request.date else today,
+        regime = regime_classification.get(prediction,"Unclassified")
+    )
 
-    result = prediction.response()
-    return result
+    return response
 
 
 

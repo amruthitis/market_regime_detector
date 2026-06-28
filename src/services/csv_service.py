@@ -1,7 +1,8 @@
 import pandas as pd
 from datetime import date, timedelta
 import redis
-from feature_engineering import feature_engineer
+import json
+from src.services.feature_engineering import feature_engineer
 
 def get_by_date(date: date):
     
@@ -10,10 +11,9 @@ def get_by_date(date: date):
     cached_data = r.get(cache_key)
 
     if cached_data:
-        return pd.read_json(cached_data)
+        return json.loads(cached_data.decode("utf-8"))
     
-    start_date = date - timedelta(days=20)
-    end_date = date
+    input_date = pd.Timestamp(date)
     df = pd.read_csv("src/data/market_data.csv")
     df = df.iloc[2:].reset_index(drop=True)
     if 'Price' in df.columns:
@@ -31,11 +31,12 @@ def get_by_date(date: date):
     for col in df.columns[1:]:
         df[col] = pd.to_numeric(df[col])
     
-    filtered_data = df[(df["Date"] >= start_date) & (df["Date"] < end_date)]
+    filtered_data = df[df["Date"] <= input_date].tail(21)
     filtered_data = feature_engineer(filtered_data)
-    r.setex(cache_key, timedelta(hours=24), filtered_data.to_json())
+    filtered_data = filtered_data.iloc[-1]
+    r.setex(cache_key, timedelta(hours=24), json.dumps(filtered_data.to_dict()))
     
-    return filtered_data
+    return filtered_data.to_dict()
 
 
 

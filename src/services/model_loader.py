@@ -3,10 +3,9 @@ import joblib
 import torch
 import torch.nn as nn
 
-class MarketEncoder(nn.Module):
+class MarketEncoder(nn.Sequential):
     def __init__(self):
-        super().__init__()
-        self.encoder = nn.Sequential(
+        super().__init__(
             nn.Linear(5,4),
             nn.ReLU(),
             nn.Linear(4,3),
@@ -14,11 +13,6 @@ class MarketEncoder(nn.Module):
             nn.Linear(3,2),
             nn.ReLU()
         )
-
-    def forward(self,x):
-        encoded = self.encoder(x)
-        return encoded
-
 
 class ModelLoader:
     def __init__(self):

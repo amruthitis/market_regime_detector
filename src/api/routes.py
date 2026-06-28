@@ -1,9 +1,11 @@
-""" Routes and Endpoints for Backend Services"""
+"""Routes and endpoints for backend services."""
 
-from fastapi import FastAPI, Path, HTTPException
 import datetime
-from services.predictor import predict
 import logging
+
+from fastapi import APIRouter, HTTPException, Path
+from src.services.predictor import predict
+from src.schemas.features import PredictionRequest
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -11,21 +13,22 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 
-logger =  logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
+router = APIRouter()
 
-app = FastAPI(title= "S&P500 Market Regime Detector")
 
-@app.get("/")
+@router.get("/")
 def read_root():
     logger.info("Root endpoint accessed")
     return {"Welcome to S&P500 Market Regime detector"}
 
-@app.post("/predict/{date}")
-def predict_(date: datetime.date = Path(..., description="Date for the Market Regime")):
-    logger.info(f"User has request for the prediction on the date {date}")
-    prediction = predict(date)
-    if prediction == None:
+
+@router.post("/predict")
+def predict_(request: PredictionRequest):
+    logger.info(f"User has request for the prediction on the date {request.date}")
+    prediction = predict(request)
+    if prediction is None:
         raise HTTPException(status_code=404, detail="Could not generate a response")
-    
+
     return prediction
 
