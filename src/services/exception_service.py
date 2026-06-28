@@ -14,7 +14,7 @@ def get_for_exceptional_date(date: date):
     if cached_data:
         return json.loads(cached_data.decode("utf-8"))
     input_date = pd.Timestamp(date)
-    start_date = input_date - timedelta(days=45)
+    start_date = input_date - timedelta(days=60)
     end_date = input_date
 
     tickers = ["^GSPC","^VIX", "^TNX", "^IRX"]
@@ -44,12 +44,16 @@ def get_for_exceptional_date(date: date):
     for col in df.columns[1:]:
         df[col] = pd.to_numeric(df[col])
     
-    filtered_data = df[(df["Date"] >= start_date) & (df["Date"] <= end_date)]
-    filtered_data = feature_engineer(filtered_data).tail(21)
+    # Fill any missing values first (ffill/bfill) on numeric columns
+    df.iloc[:, 1:] = df.iloc[:, 1:].ffill().bfill()
+    
+    filtered_data = feature_engineer(df)
     filtered_data = filtered_data.iloc[-1]
-    r.setex(cache_key, timedelta(hours=24), json.dumps(filtered_data.to_dict()))
+    
+    latest_dict = filtered_data.to_dict()
+    r.setex(cache_key, timedelta(hours=24), json.dumps(latest_dict))
 
-    return filtered_data.to_dict()
+    return latest_dict
     
 
 

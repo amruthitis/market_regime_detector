@@ -5,6 +5,8 @@ import datetime
 
 class PredictionResponse(BaseModel):
     date: datetime.date
-    regime : str
+    regime: str
+    confidence: float
+    source: str
 
  

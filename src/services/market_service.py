@@ -12,12 +12,12 @@ def get_latest():
     cached_data = r.get(cache_key)
 
     if cached_data:
-        return json.loads(cached_data.encode("utf-8"))
+        return json.loads(cached_data.decode("utf-8"))
 
 
-    date = date.today()
-    start_date = pd.Timestamp(date) - timedelta(days=45)
-    end_date = pd.Timestamp(date)
+    today_date = date.today()
+    start_date = pd.Timestamp(today_date) - timedelta(days=60)
+    end_date = pd.Timestamp(today_date)
 
     tickers = ["^GSPC","^VIX", "^TNX", "^IRX"]
     
@@ -46,12 +46,16 @@ def get_latest():
     for col in df.columns[1:]:
         df[col] = pd.to_numeric(df[col])
     
-    filtered_data = df[(df["Date"] >= start_date) & (df["Date"] <= end_date)]
-    filtered_data = feature_engineer(filtered_data).tail(21)
+    # Fill any missing values first (ffill/bfill) on numeric columns
+    df.iloc[:, 1:] = df.iloc[:, 1:].ffill().bfill()
+    
+    filtered_data = feature_engineer(df)
     filtered_data = filtered_data.iloc[-1]
-    r.setex(cache_key, timedelta(hours=24), json.dumps(filtered_data.to_dict()))
+    
+    latest_dict = filtered_data.to_dict()
+    r.setex(cache_key, timedelta(hours=24), json.dumps(latest_dict))
 
-    return filtered_data.to_dict()
+    return latest_dict
 
     
 

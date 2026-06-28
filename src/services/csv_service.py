@@ -31,12 +31,18 @@ def get_by_date(date: date):
     for col in df.columns[1:]:
         df[col] = pd.to_numeric(df[col])
     
-    filtered_data = df[df["Date"] <= input_date].tail(21)
+    filtered_data = df[df["Date"] <= input_date].tail(60).copy()
+    
+    # Fill any missing values first (ffill/bfill) on numeric columns
+    filtered_data.iloc[:, 1:] = filtered_data.iloc[:, 1:].ffill().bfill()
+    
     filtered_data = feature_engineer(filtered_data)
     filtered_data = filtered_data.iloc[-1]
-    r.setex(cache_key, timedelta(hours=24), json.dumps(filtered_data.to_dict()))
     
-    return filtered_data.to_dict()
+    latest_dict = filtered_data.to_dict()
+    r.setex(cache_key, timedelta(hours=24), json.dumps(latest_dict))
+    
+    return latest_dict
 
 
 
