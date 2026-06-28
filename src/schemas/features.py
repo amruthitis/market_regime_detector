@@ -1,6 +1,6 @@
 """Feature schema definitions for market regime detection."""
 from typing import List, Annotated, Optional
-from pydantic import BaseModel, Field, computed_field
+from pydantic import BaseModel, Field, computed_field, field_validator
 import datetime
 import numpy as np
 import pandas as pd
@@ -9,20 +9,27 @@ class PredictionRequest(BaseModel):
     date: Optional[Annotated[datetime.date, Field(title="Date for the required market regime", description="Gives the market regime on the given date")]] = None
 
 
-class MarketFeatures(BaseModel):
-    Date: datetime.date
-    SP500: np.float64
-    IRX : np.float64
-    TNX : np.float64
-    VIX : np.float64
+class PredictionFeatures(BaseModel):
+    VIX  : np.float64
     Volume_SP500 : np.int64
+    Yield_Spread : np.float64
+    Returns : np.float64
+    Volatility : np.float64
 
-    @computed_field
-    @property
-    def yield_spread(self):
-        self.yield_spread = self.TNX - self.IRX
-        return self.yield_spread
+    def model_input(self) -> np.ndarray:
+        return np.array([
+        self.VIX,
+        self.Volume_SP500,
+        self.Returns,
+        self.Yield_Spread,
+        self.Volatility],dtype=np.float32).reshape(1, -1)
+
+
+
+
+
     
+
 
     
 

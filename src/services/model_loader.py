@@ -3,7 +3,7 @@ import joblib
 import torch
 import torch.nn as nn
 
-class MarketEnocder(nn.Module):
+class MarketEncoder(nn.Module):
     def __init__(self):
         super().__init__()
         self.encoder = nn.Sequential(
@@ -25,8 +25,10 @@ class ModelLoader:
         self.scaler = joblib.load("src/models/scaler.pkl")
         self.kmeans = joblib.load("src/models/kmeans_model.pkl")
 
-        self.encoder = MarketEnocder()
-        self.encoder.load_state_dict("src/models/market_encoder.pth")
+        self.encoder = MarketEncoder()
+
+        state = torch.load("src/models/market_encoder.pth", map_location="cpu")
+        self.encoder.load_state_dict(state)
 
         self.encoder.eval()
 
