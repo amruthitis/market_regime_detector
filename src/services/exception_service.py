@@ -4,7 +4,7 @@ import yfinance as yf
 import redis
 from feature_engineering import feature_engineer
 
-def get_latest():
+def get_for_exceptional_date(date: date):
     
     r = redis.Redis(host="localhost", port=6379, db=0)
     cache_key = "latest_market_data"
@@ -13,8 +13,6 @@ def get_latest():
     if cached_data:
         return pd.read_json(cached_data)
 
-
-    date = date.today()
     start_date = date - timedelta(days=20)
     end_date = date
 
