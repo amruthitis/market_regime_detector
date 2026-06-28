@@ -236,7 +236,7 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-            className="mb-16 max-w-2xl text-lg font-medium text-accent/90 drop-shadow-[0_0_12px_rgba(110,231,183,0.35)] sm:text-xl"
+            className="mb-16 max-w-2xl text-lg font-medium italic text-accent/90 drop-shadow-[0_0_12px_rgba(110,231,183,0.35)] sm:text-xl"
           >
             Where Time Reveals The Market
           </motion.p>
