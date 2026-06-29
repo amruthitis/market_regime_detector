@@ -4,12 +4,17 @@ import yfinance as yf
 import redis
 import json
 from src.services.feature_engineering import feature_engineer
+from src.services.redis_client import redis_client
+from src.config import CACHE_TTL
 
 def get_for_exceptional_date(date: date):
     
-    r = redis.Redis(host="localhost", port=6379, db=0)
+    r = redis_client
     cache_key = f"latest_market_data_{date.isoformat()}"
-    cached_data = r.get(cache_key)
+    try:
+        cached_data = r.get(cache_key)
+    except Exception:
+        cached_data = None
 
     if cached_data:
         return json.loads(cached_data.decode("utf-8"))
@@ -51,7 +56,11 @@ def get_for_exceptional_date(date: date):
     filtered_data = filtered_data.iloc[-1]
     
     latest_dict = filtered_data.to_dict()
-    r.setex(cache_key, timedelta(hours=24), json.dumps(latest_dict))
+
+    try:
+        r.setex(cache_key, CACHE_TTL, json.dumps(latest_dict))
+    except Exception:
+        pass
 
     return latest_dict
     

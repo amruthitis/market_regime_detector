@@ -2,6 +2,11 @@
 import joblib
 import torch
 import torch.nn as nn
+from pathlib import Path
+
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+MODEL_DIR = BASE_DIR/ "models"
 
 class MarketEncoder(nn.Sequential):
     def __init__(self):
@@ -16,12 +21,12 @@ class MarketEncoder(nn.Sequential):
 
 class ModelLoader:
     def __init__(self):
-        self.scaler = joblib.load("src/models/scaler.pkl")
-        self.kmeans = joblib.load("src/models/kmeans_model.pkl")
+        self.scaler = joblib.load(MODEL_DIR / "scaler.pkl")
+        self.kmeans = joblib.load(MODEL_DIR / "kmeans_model.pkl")
 
         self.encoder = MarketEncoder()
 
-        state = torch.load("src/models/market_encoder.pth", map_location="cpu")
+        state = torch.load(MODEL_DIR / "market_encoder.pth", map_location="cpu")
         self.encoder.load_state_dict(state)
 
         self.encoder.eval()
