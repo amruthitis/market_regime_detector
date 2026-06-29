@@ -172,8 +172,8 @@ export function PredictionPage() {
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-6"
           >
-            <Card className="w-full max-w-lg">
-              <CardContent className="p-12 text-center">
+            <Card className="w-full max-w-xl">
+              <CardContent className="p-6 sm:p-12 text-center">
                 <h1 className="text-3xl font-bold tracking-tight text-white">
                   Market Regime Detector
                 </h1>
@@ -193,11 +193,11 @@ export function PredictionPage() {
                     />
                   </div>
 
-                  <div className="flex gap-3">
+                  <div className="flex flex-col sm:flex-row gap-4">
                     <Button
                       variant="primary"
                       size="lg"
-                      className="flex-1"
+                      className="w-full sm:flex-1"
                       onClick={() => startAnalysis(dateInput || undefined)}
                     >
                       Analyze Market
@@ -205,7 +205,7 @@ export function PredictionPage() {
                     <Button
                       variant="outline"
                       size="lg"
-                      className="flex-1"
+                      className="w-full sm:flex-1"
                       onClick={() => startAnalysis(undefined)}
                     >
                       Analyze Today

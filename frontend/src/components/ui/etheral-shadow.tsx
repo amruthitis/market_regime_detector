@@ -1,4 +1,4 @@
-import { useRef, useId, useEffect, type CSSProperties } from 'react';
+import { useRef, useId, useEffect, useState, type CSSProperties } from 'react';
 import { animate, useMotionValue, type AnimationPlaybackControls } from 'framer-motion';
 
 // Type definitions
@@ -63,7 +63,17 @@ export function Component({
     showTitle = true
 }: ShadowOverlayProps) {
     const id = useInstanceId();
-    const animationEnabled = animation && animation.scale > 0;
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const media = window.matchMedia("(max-width: 768px)");
+        setIsMobile(media.matches);
+        const listener = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+        media.addEventListener("change", listener);
+        return () => media.removeEventListener("change", listener);
+    }, []);
+
+    const animationEnabled = animation && animation.scale > 0 && !isMobile;
     const feColorMatrixRef = useRef<SVGFEColorMatrixElement>(null);
     const hueRotateMotionValue = useMotionValue(180);
     const hueRotateAnimation = useRef<AnimationPlaybackControls | null>(null);
@@ -110,7 +120,21 @@ export function Component({
                 ...style
             }}
         >
+            {isMobile && (
+                <style>{`
+                    @keyframes breathing-glow {
+                        0% { transform: scale(1) translate(0px, 0px); }
+                        50% { transform: scale(1.08) translate(8px, -8px); }
+                        100% { transform: scale(1) translate(0px, 0px); }
+                    }
+                    .mobile-glow-pulse {
+                        animation: breathing-glow 15s ease-in-out infinite;
+                        transform-origin: center;
+                    }
+                `}</style>
+            )}
             <div
+                className={isMobile ? "mobile-glow-pulse" : ""}
                 style={{
                     position: "absolute",
                     inset: -displacementScale,

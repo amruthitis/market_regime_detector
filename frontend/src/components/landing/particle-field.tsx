@@ -1,6 +1,6 @@
 import { Canvas, useFrame } from "@react-three/fiber"
 import * as THREE from "three"
-import { useRef, useMemo } from "react"
+import { useRef, useMemo, useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 
 interface ParticlesProps {
@@ -65,10 +65,20 @@ interface ParticleFieldProps {
 }
 
 export function ParticleField({ className }: ParticleFieldProps) {
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 768px)")
+    setIsMobile(media.matches)
+    const listener = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    media.addEventListener("change", listener)
+    return () => media.removeEventListener("change", listener)
+  }, [])
+
   return (
     <div className={cn("fixed inset-0 -z-10", className)}>
       <Canvas camera={{ position: [0, 0, 15], fov: 60 }}>
-        <Particles />
+        <Particles count={isMobile ? 500 : 2000} />
       </Canvas>
     </div>
   )
